@@ -1,5 +1,5 @@
 # Introduce
-this a simple db table data manager 
+this is a simple table manager. 
 - view data
 - pagination
 - list tables
