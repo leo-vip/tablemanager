@@ -1,0 +1,11 @@
+jinja2
+PyMySQL
+SQLAlchemy
+translation
+fastapi
+uvicorn
+python-multipart
+fastapi-utils
+email-validator
+
+aiofiles
