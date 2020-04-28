@@ -50,7 +50,8 @@
         <div class="col-sm-3 col-md-2 sidebar list-group">
 
             <ul class="nav nav-sidebar">
-                <li class="active"><a href="#">Overview <span class="sr-only">(current)</span></a></li>
+                <li class="active"><a href="javascript:setTablename(null);">Overview <span
+                        class="sr-only">(current)</span></a></li>
                 {% for table in tables %}
                 <li class="list-group-item" style="padding: 0px"><a href="javascript:setTablename('{{table}}')">{{ table
                     }} </a></li>
@@ -96,7 +97,7 @@
                     </button>
                 </div>
                 <div class="btn-group">
-                    <button type="button" class="btn btn-success" data-toggle="modal" data-target="#myModal">
+                    <button type="button" class="btn btn-success" data-toggle="modal" data-target="#id_filter">
                         <span class="glyphicon glyphicon-filter" aria-hidden="true"></span>
                     </button>
                 </div>
@@ -132,21 +133,39 @@
     </div>
 </div>
 
-
-<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+<!--过滤器 -->
+<div class="modal fade" id="id_filter" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span>
                 </button>
-                <h4 class="modal-title" id="myModalLabel">Modal title</h4>
+                <h4 class="modal-title" id="myModalLabel">过滤条件</h4>
             </div>
             <div class="modal-body">
-                ...
+                <input type="text" class="form-control" id="id_where" placeholder="Where" value="status is null">
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary">Save changes</button>
+                <button type="button" class="btn btn-default" onclick="click_filter()">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 修改窗口 -->
+<div class="modal fade" id="id_editor" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title">修改</h4>
+            </div>
+            <div class="modal-body">
+                <!--                <input type="text" class="form-control" id="id_where" placeholder="Where" value="status is null">-->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" onclick="update_this_pk()">OK</button>
             </div>
         </div>
     </div>
@@ -170,51 +189,114 @@
     var total = 100;
 
     function refresh() {
-        $.getJSON("/data", {"table_name": current_table, "page": page, "limit": limit}, function (result) {
-            var title = null;
+        $.ajax({
+            type: "GET",
+            url: "/data",
+            dataType: "json",
+            data: {"table_name": current_table, "page": page, "limit": limit, "where": $("#id_where").val()},
+            success: function (result) {
 
-            var html = [];
+                var title = null;
+
+                var html = [];
 
 
-            total = result.count;
-            refreshPager();
+                total = result.count;
+                refreshPager();
 
 
-            html.push('<table class="table table-bordered table-hover" style="margin-left: 0;">');
+                html.push('<table class="table table-bordered table-hover" style="margin-left: 0;">');
 
-            if (result.items.length > 0 && title == null) {
-                html.push(['<thead ><tr class="active">']);
-                for (col in result.items[0]) {
-                    html.push("<th>" + col + "</th>")
-                }
-                html.push(' </tr></thead><tbody>');
-            }
+                if (result.items.length > 0 && title == null) {
 
-            $.each(result.items, function (index, item) {
-
-                html.push('<tr>');
-                for (col in item) {
-                    var value = item[col];
-                    console.debug(item[col]);
-                    if (typeof (item[col]) == 'string' && item[col].startsWith('http')) {
-                        if (item[col].endsWith(".jpg") || item[col].endsWith(".png")) {
-                            value = "<img src= \"" + item[col] + "\" height='100px'/>";
-                        } else {
-                            value = "<a href=\"" + item[col] + "\" target='_blank'>连接</a>";
-                        }
-
-                        html.push('<td width="50px">' + value + '</td>');
-                    } else {
-                        html.push('<td>' + value + '</td>');
+                    html.push(['<thead ><tr class="active">']);
+                    html.push("<th>action</th>");
+                    for (col in result.items[0]) {
+                        html.push("<th>" + col + "</th>")
                     }
+                    html.push(' </tr></thead><tbody>');
                 }
-                html.push('</tr>');
-            });
 
-            html.push('</tbody></table>');
+                $.each(result.items, function (index, item) {
+                    html.push('<tr>');
+                    html.push("<td><button class='btn' style='background-color: inherit' onclick='showEditor(\"" + result['PK'] + "\")'><span class=\"glyphicon glyphicon-edit\" aria-hidden=\"true\"></span></button></td>");
+                    for (col in item) {
+                        var value = item[col];
+                        if (typeof (item[col]) == 'string' && item[col].startsWith('http')) {
+                            if (item[col].endsWith(".jpg") || item[col].endsWith(".png")) {
+                                value = "<img src= \"" + item[col] + "\" height='100px'/>";
+                            } else {
+                                value = "<a href=\"" + item[col] + "\" target='_blank'>连接</a>";
+                            }
+                            html.push('<td width="50px">' + value + '</td>');
+                        } else {
+                            html.push('<td>' + value + '</td>');
+                        }
+                    }
+                    html.push('</tr>');
+                });
 
-            $("#data-container").html(html.join(''));
+                html.push('</tbody></table>');
+
+                $("#data-container").html(html.join(''));
+            },
+            error: function (req, status, err) {
+
+                $("#data-container").html("<div style='color: red'>" + req.responseJSON['errors'] + "</div>");
+            }
         });
+
+        // $.getJSON("/data", {
+        //     "table_name": current_table,
+        //     "page": page,
+        //     "limit": limit,
+        //     "where": $("#id_where").val()
+        // }, function (result, status, xhr) {
+        //     console.debug(result, status, xhr);
+        //     var title = null;
+        //
+        //     var html = [];
+        //
+        //
+        //     total = result.count;
+        //     refreshPager();
+        //
+        //
+        //     html.push('<table class="table table-bordered table-hover" style="margin-left: 0;">');
+        //
+        //     if (result.items.length > 0 && title == null) {
+        //         html.push(['<thead ><tr class="active">']);
+        //         for (col in result.items[0]) {
+        //             html.push("<th>" + col + "</th>")
+        //         }
+        //         html.push(' </tr></thead><tbody>');
+        //     }
+        //
+        //     $.each(result.items, function (index, item) {
+        //
+        //         html.push('<tr>');
+        //         for (col in item) {
+        //             var value = item[col];
+        //             console.debug(item[col]);
+        //             if (typeof (item[col]) == 'string' && item[col].startsWith('http')) {
+        //                 if (item[col].endsWith(".jpg") || item[col].endsWith(".png")) {
+        //                     value = "<img src= \"" + item[col] + "\" height='100px'/>";
+        //                 } else {
+        //                     value = "<a href=\"" + item[col] + "\" target='_blank'>连接</a>";
+        //                 }
+        //
+        //                 html.push('<td width="50px">' + value + '</td>');
+        //             } else {
+        //                 html.push('<td>' + value + '</td>');
+        //             }
+        //         }
+        //         html.push('</tr>');
+        //     });
+        //
+        //     html.push('</tbody></table>');
+        //
+        //     $("#data-container").html(html.join(''));
+        // });
     }
 
     function refreshPager() {
@@ -268,6 +350,27 @@
     function to_end() {
         page = Math.ceil(total / limit);
         refresh();
+    }
+
+    function click_filter() {
+        $('#id_filter').modal('toggle');
+        refresh();
+    }
+
+    refresh();
+
+    var editor_pk='undefined';
+
+    function showEditor(pk) {
+        if (pk =='undefined'){
+            console.debug("undefined")
+        }
+        editor_pk = pk;
+        $("#id_editor").modal('toggle');
+    }
+
+    function update_this_pk() {
+        alert(editor_pk);
     }
 
 

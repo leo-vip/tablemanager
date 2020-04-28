@@ -77,8 +77,20 @@ class DBManager:
         return tables
 
     def show_table_columns(self, table_name):
-        result = self.query_sql(f"desc {table_name};")
-        return result
+        columns = self.query_sql(f"desc {table_name};")
+
+        # def to_dict(column):
+        #     r = {"Name": table_name, 'Field': column[0], "Type": column[1], 'Key': column[3], "Default": column[4],
+        #          'Extra': column[5]}
+        #     return r
+        # return [to_dict(v) for v in columns]
+        return [v[0] for v in columns]
+
+    def getPK(self, table_name):
+        columns = self.query_sql(f"desc {table_name};")
+        for column in columns:
+            if column[3] == 'PRI':
+                return column[0]
 
 
 if __name__ == '__main__':
