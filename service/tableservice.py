@@ -23,6 +23,10 @@ class TableService:
     def getPK(self, table_name):
         return db_manager.getPK(table_name)
 
+    def query_data_by_id(self, column, value, table_name):
+
+        return db_manager.query_sql(f"select * from {table_name} where {column} = {value}")
+
 
 if __name__ == '__main__':
     service = TableService()

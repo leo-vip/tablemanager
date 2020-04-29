@@ -23,6 +23,18 @@ def index(request: Request):
 table_service = TableService()
 
 
+@app.get("/column_data")
+def column_data(column, value, table_name):
+    return table_service.query_data_by_id(column, value, table_name)
+
+
+@app.get("/column_update")
+def column_data(name=None, value=None, table_name=None, columns=None):
+    print(columns)
+    return "SUCCESS"
+    # return table_service.query_data_by_id(column, value, table_name)
+
+
 @app.get('/data')
 def data(response: Response, table_name=None, page: int = 1, limit: int = 50, where: str = None):
     try:
