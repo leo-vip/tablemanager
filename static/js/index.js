@@ -185,6 +185,7 @@ function update_this_pk() {
     }, function (data) {
         if (data == 'SUCCESS') {
             $("#id_editor").modal('toggle');
+            refresh();
         } else {
             alert("error");
         }
