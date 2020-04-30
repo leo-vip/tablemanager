@@ -46,6 +46,7 @@ def data(response: Response, table_name=None, page: int = 1, limit: int = 50, wh
             items = []
             for table in tables:
                 item = table_service.show_table_column(table)
+                item.insert(0, table)
                 items.append(item)
             return {"count": len(tables), "items": items}
         if page < 1:
