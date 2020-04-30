@@ -54,7 +54,7 @@ function refresh() {
                         }
                         html.push('<td width="50px">' + value + '</td>');
                     } else {
-                        html.push('<td>' + value + '</td>');
+                        html.push('<td>' + (value == null ? " - " : value) + '</td>');
                     }
                 }
                 html.push('</tr>');
@@ -90,6 +90,9 @@ function setTablename(tablename) {
     page = 1;
     $("#id_table_name").html(tablename);
     refresh();
+
+    $("#_id_table_ul li").removeClass();
+    $("#_id_table_" + tablename).addClass("active");
 }
 
 function to_first_page() {
@@ -169,18 +172,22 @@ function update_this_pk() {
     for (column_name in temp_column_data) {
         var _value = $("#_id_{name}".replace(reg_name, column_name)).val();
         if (_value != String(temp_column_data[column_name])) {
-            m[column_name]= _value;
+            m[column_name] = _value;
             console.debug(_value);
         }
     }
 
-    $.get("/column_update",{
+    $.get("/column_update", {
         "table_name": current_table,
         "name": editor_pk,
         "value": editor_pk_value,
         "columns": JSON.stringify(m)
     }, function (data) {
-        console.debug(data)
+        if (data == 'SUCCESS') {
+            $("#id_editor").modal('toggle');
+        } else {
+            alert("error");
+        }
     });
 }
 

@@ -49,11 +49,11 @@
     <div class="row">
         <div class="col-sm-3 col-md-2 sidebar list-group">
 
-            <ul class="nav nav-sidebar">
-                <li class="active"><a href="javascript:setTablename(null);">Overview <span
+            <ul class="nav nav-sidebar" id="_id_table_ul">
+                <li class="active" id="_id_table_null"><a href="javascript:setTablename(null);">Overview <span
                         class="sr-only">(current)</span></a></li>
                 {% for table in tables %}
-                <li class="list-group-item" style="padding: 0px"><a href="javascript:setTablename('{{table}}')">{{ table
+                <li class="list-group-item" id="_id_table_{{table}}" style="padding: 0px"><a href="javascript:setTablename('{{table}}')">{{ table
                     }} </a></li>
                 {% endfor %}
             </ul>
@@ -129,7 +129,6 @@
 
         </div>
 
-
     </div>
 </div>
 
@@ -143,7 +142,7 @@
                 <h4 class="modal-title" id="myModalLabel">过滤条件</h4>
             </div>
             <div class="modal-body">
-                <input type="text" class="form-control" id="id_where" placeholder="Where" value="status is null">
+                <input type="text" class="form-control" id="id_where" placeholder="Where" value="">
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" onclick="click_filter()">OK</button>
@@ -161,7 +160,7 @@
                 </button>
                 <h4 class="modal-title">修改</h4>
             </div>
-            <div class="modal-body" id = "id_editor_content">
+            <div class="modal-body" id="id_editor_content">
                 <!--                <input type="text" class="form-control" id="id_where" placeholder="Where" value="status is null">-->
             </div>
             <div class="modal-footer">

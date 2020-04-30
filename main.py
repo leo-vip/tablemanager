@@ -1,3 +1,5 @@
+import json
+
 import uvicorn
 from fastapi import FastAPI, status
 
@@ -30,7 +32,8 @@ def column_data(column, value, table_name):
 
 @app.get("/column_update")
 def column_data(name=None, value=None, table_name=None, columns=None):
-    print(columns)
+
+    table_service.update_column(name, value, table_name, json.loads(columns))
     return "SUCCESS"
     # return table_service.query_data_by_id(column, value, table_name)
 

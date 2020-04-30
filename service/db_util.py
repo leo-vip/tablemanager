@@ -17,45 +17,52 @@ class DBManager:
         self.DBSession = sessionmaker(bind=self.engine)
 
     def add(self, entity):
-        session = self.DBSession()
+        try:
+            session = self.DBSession()
 
-        session.add(entity)
+            session.add(entity)
 
-        session.commit()
-        session.refresh(entity)
-        session.expunge(entity)
-
-        session.close()
+            session.commit()
+            session.refresh(entity)
+            session.expunge(entity)
+        finally:
+            session.close()
 
     def delete(self, entity, *args):
-
-        session = self.DBSession()
-        q = session.query(entity)
-        for arg in args:
-            q = q.filter(arg)
-        q.delete()
-        session.commit()
-        session.close()
+        try:
+            session = self.DBSession()
+            q = session.query(entity)
+            for arg in args:
+                q = q.filter(arg)
+            q.delete()
+            session.commit()
+        finally:
+            session.close()
 
     def query_one_or_none(self, entity, *args):
-        session = self.DBSession()
-        q = session.query(entity)
-        for arg in args:
-            q = q.filter(arg)
-        result = q.one_or_none()
-        session.close()
-        return result
+        try:
+            session = self.DBSession()
+            q = session.query(entity)
+            for arg in args:
+                q = q.filter(arg)
+            result = q.one_or_none()
+            return result
+        finally:
+            session.close()
+
 
     def query_order_by_field(self, entity, order_by, args=[], offset=0, limit=10, ):
-        session = self.DBSession()
-        q = session.query(entity)
-        for arg in args:
-            q = q.filter(arg)
-        q = q.order_by(order_by)
-        q = q.limit(limit)
-        q = q.offset(offset)
-        result = q.all()
-        session.close()
+        try:
+            session = self.DBSession()
+            q = session.query(entity)
+            for arg in args:
+                q = q.filter(arg)
+            q = q.order_by(order_by)
+            q = q.limit(limit)
+            q = q.offset(offset)
+            result = q.all()
+        finally:
+            session.close()
         return result
 
     def query_sql(self, sql):
@@ -64,12 +71,29 @@ class DBManager:
         :param sql:
         :return: result
         """
-        session = self.DBSession()
+        try:
+            session = self.DBSession()
 
-        cursor = session.execute(sql)
-        result = cursor.fetchall()
-        session.close()
-        return result
+            cursor = session.execute(sql)
+            result = cursor.fetchall()
+            return result
+        finally:
+            session.close()
+
+    def execute_sql(self, sql):
+        """
+        execute sql
+        :param sql:
+        :return: result
+        """
+        try:
+            session = self.DBSession()
+
+            session.execute(sql)
+            session.commit()
+
+        finally:
+            session.close()
 
     def list_table(self):
         result = self.query_sql("show table status;")
@@ -79,11 +103,6 @@ class DBManager:
     def show_table_columns(self, table_name):
         columns = self.query_sql(f"desc {table_name};")
 
-        # def to_dict(column):
-        #     r = {"Name": table_name, 'Field': column[0], "Type": column[1], 'Key': column[3], "Default": column[4],
-        #          'Extra': column[5]}
-        #     return r
-        # return [to_dict(v) for v in columns]
         return [v[0] for v in columns]
 
     def getPK(self, table_name):
