@@ -25,7 +25,7 @@ class TableService:
 
     def query_data_by_id(self, column, value, table_name):
 
-        return db_manager.query_sql(f"select * from {table_name} where {column} = {value}")
+        return db_manager.query_sql(f"select * from {table_name} where `{column}` = {value}")
 
     def update_column(self, name, value, table_name, columns:dict):
         def get_format_value(value):
@@ -35,7 +35,7 @@ class TableService:
                 return f"'{value}'"
         _cols = []
         for column in columns.keys():
-            _cols.append(f"{column}={get_format_value(columns[column])}")
+            _cols.append(f"`{column}`={get_format_value(columns[column])}")
         _cols_str = ",".join(_cols)
 
         sql = f"update {table_name} set {_cols_str} where {name} = {get_format_value(value)}"
