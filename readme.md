@@ -18,7 +18,7 @@ Nginx Config
 
     server {
         listen       80;
-        server_name table.ceee.vip;
+        server_name xx.abc.com;
         root         /usr/share/nginx/html;
 
         include /etc/nginx/default.d/*.conf;
